@@ -1,32 +1,46 @@
 const express = require("express");
 const app = express();
 
-app.use("/home", (req, res) => {
-  return res.send("Hello to Home");
-});
-// Note here instead of {} we cannot use ()
+app.get(
+  "/userGet",
+  //All these functions are caller Middlewares
+  (req, res, next) => {
+    console.log("RouteHandler1");
+    res.send("RouteHandler1");
+    next();
+  },
+  (req, res) => {
+    console.log("RouteHandler2");
+    res.send("RouteHandler2");
+  }
+);
 
-app.get("/userGetParams/:userId/:name/:password", (req, res) => {
-  console.log(req.params);
-  res.send({ firstname: "Vishesh", lastName: "Rajput" });
-});
-app.get("/userGetQuery", (req, res) => {
-  console.log(req.query);
-  res.send({ firstname: "Vishesh", lastName: "Rajput" });
-});
+// app.use("/home", (req, res) => {
+//   return res.send("Hello to Home");
+// });
+// // Note here instead of {} we cannot use ()
 
-app.get("/userGet", (req, res) => {
-  res.send({ firstname: "Vishesh", lastName: "Rajput" });
-});
-app.post("/userPost", (req, res) => {
-  res.send("Post the Data");
-});
-app.patch("/userPatch", (req, res) => {
-  res.send("Patch the Data");
-});
-app.delete("/userDelete", (req, res) => {
-  res.send("Delete the Data");
-});
+// app.get("/userGetParams/:userId/:name/:password", (req, res) => {
+//   console.log(req.params);
+//   res.send({ firstname: "Vishesh", lastName: "Rajput" });
+// });
+// app.get("/userGetQuery", (req, res) => {
+//   console.log(req.query);
+//   res.send({ firstname: "Vishesh", lastName: "Rajput" });
+// });
+
+// app.get("/userGet", (req, res) => {
+//   res.send({ firstname: "Vishesh", lastName: "Rajput" });
+// });
+// app.post("/userPost", (req, res) => {
+//   res.send("Post the Data");
+// });
+// app.patch("/userPatch", (req, res) => {
+//   res.send("Patch the Data");
+// });
+// app.delete("/userDelete", (req, res) => {
+//   res.send("Delete the Data");
+// });
 
 //Always put this in button
 app.use("/", (req, res) => {
