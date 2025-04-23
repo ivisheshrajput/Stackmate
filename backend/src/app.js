@@ -1,20 +1,32 @@
 const express = require("express");
 const app = express();
-const { adminAuth, userAuth } = require("./middlewares/auth");
 
-//Dummy Middleware auth for admin
+//Error Handling
 
-// 1st way to handle middleware
+// const { adminAuth, userAuth } = require("./middlewares/auth");
 
-// app.use("/admin", (req, res, next) => {
-//   const token = "xyzy";
-//   const isAuthenticated = token === "xyz";
-//   if (!isAuthenticated) {
-//     res.send("Admin is not Authenticated");
-//   } else {
-//     next();
-//   }
-// });
+// //Dummy Middleware auth for admin
+
+// // 1st way to handle middleware
+
+// // app.use("/admin", (req, res, next) => {
+// //   const token = "xyzy";
+// //   const isAuthenticated = token === "xyz";
+// //   if (!isAuthenticated) {
+// //     res.send("Admin is not Authenticated");
+// //   } else {
+// //     next();
+// //   }
+// // });
+// // app.get("/admin/getData", (req, res) => {
+// //   res.send("Admin will get all Data");
+// // });
+// // app.get("/admin/deleteData", (req, res) => {
+// //   res.send("Admin will delete all Data");
+// // });
+
+// //2nd way to handle middleware the general way in which we create a function
+// app.use("/admin", adminAuth);
 // app.get("/admin/getData", (req, res) => {
 //   res.send("Admin will get all Data");
 // });
@@ -22,28 +34,19 @@ const { adminAuth, userAuth } = require("./middlewares/auth");
 //   res.send("Admin will delete all Data");
 // });
 
-//2nd way to handle middleware the general way in which we create a function
-app.use("/admin", adminAuth);
-app.get("/admin/getData", (req, res) => {
-  res.send("Admin will get all Data");
-});
-app.get("/admin/deleteData", (req, res) => {
-  res.send("Admin will delete all Data");
-});
+// //Dummy middleware auth for user including all routes of /user except /user/login
 
-//Dummy middleware auth for user including all routes of /user except /user/login
+// //by this we can use middleware where we want and restricted to specific route
 
-//by this we can use middleware where we want and restricted to specific route
-
-//if we have used "use" instead of "get" then we need to put /user/login above /user but here it is not required because all
-// the /user api are authentication get apis since used app.get by this way we can actually use middleware where we require
-// particularly
-app.get("/user", userAuth, (req, res) => {
-  res.send("We are in User");
-});
-app.post("/user/login", (req, res) => {
-  res.send("Login is directly accessed");
-});
+// //if we have used "use" instead of "get" then we need to put /user/login above /user but here it is not required because all
+// // the /user api are authentication get apis since used app.get by this way we can actually use middleware where we require
+// // particularly
+// app.get("/user", userAuth, (req, res) => {
+//   res.send("We are in User");
+// });
+// app.post("/user/login", (req, res) => {
+//   res.send("Login is directly accessed");
+// });
 
 // app.get(
 //   "/userGet",
