@@ -1,15 +1,11 @@
 const express = require("express");
-//require("./config/database");
+
 const connectDB = require("./config/database");
 const app = express();
 
 app.use("/", (req, res) => {
   res.send("Hello to Dashboard");
 });
-
-// app.listen(3001, () => {
-//   console.log("Server is running on Port 3001");
-// });
 
 connectDB()
   .then(() => {
