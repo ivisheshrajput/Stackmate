@@ -15,8 +15,20 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+app.delete("/delete", async (req, res) => {
+  const userID = req.body.userId;
+  try {
+    // const user = await Users.findByIdAndDelete({ _id: userID });
+    //  Instead of above we can send userID directly for this in mongoose it is provided
+    const user = await Users.findByIdAndDelete(userID);
+    res.send("User have been deleted");
+  } catch (err) {
+    res.status(400).send("Something went wrong" + err);
+  }
+});
+
 app.get("/user", async (req, res) => {
-  const emailUser = req.body.emailt;
+  const emailUser = req.body.email;
   try {
     const user = await Users.find({ email: emailUser });
     if (!user) {
