@@ -15,6 +15,17 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+app.patch("/user", async (req, res) => {
+  const userID = req.body.userId;
+  const data = req.body;
+  try {
+    const user = await Users.findByIdAndUpdate(userID, data);
+    res.send("User is updated");
+  } catch (err) {
+    res.status(400).send("Something went wrong" + err);
+  }
+});
+
 app.delete("/delete", async (req, res) => {
   const userID = req.body.userId;
   try {
