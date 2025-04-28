@@ -15,18 +15,43 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.patch("/user", async (req, res) => {
-  const userID = req.body.userId;
+app.patch("/user/:userid", async (req, res) => {
+  const userID = req.params?.userid;
   const data = req.body;
+  console.log(data, "ooooooo");
   try {
+    const ALLOWED_DATA = ["age", "skill", "gender", "photoUrl", "about"];
+    const isUpdateAllowed = Object.keys(data).every((key) =>
+      ALLOWED_DATA.includes(key)
+    );
+    if (!isUpdateAllowed) {
+      throw new Error("Some fields are not allowed");
+    }
+    if (data?.skill?.length > 10) {
+      throw new Error("Skills should be less than 10");
+    }
     const user = await Users.findByIdAndUpdate(userID, data, {
       runValidators: true,
     });
-    res.send("User is updated");
-  } catch (err) {
-    res.status(400).send("Something went wrong" + err);
+
+    res.send("Update is successful");
+  } catch (error) {
+    res.status(400).send("Error Occur:" + error);
   }
 });
+
+// app.patch("/user", async (req, res) => {
+//   const userID = req.body.userId;
+//   const data = req.body;
+//   try {
+//     const user = await Users.findByIdAndUpdate(userID, data, {
+//       runValidators: true,
+//     });
+//     res.send("User is updated");
+//   } catch (err) {
+//     res.status(400).send("Something went wrong" + err);
+//   }
+// });
 
 app.delete("/delete", async (req, res) => {
   const userID = req.body.userId;
