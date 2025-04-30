@@ -7,6 +7,24 @@ const bcrypt = require("bcrypt");
 
 app.use(express.json());
 
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await Users.findOne({ email: email });
+    if (!user) {
+      throw new Error("Invalid Credential Email");
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (isPasswordValid) {
+      res.send("Login is successfull");
+    } else {
+      throw new Error("Invalid Credential Pass");
+    }
+  } catch (err) {
+    res.status(400).send("ERROR :" + err);
+  }
+});
+
 app.post("/signup", async (req, res) => {
   try {
     validateSignUpData(req);
