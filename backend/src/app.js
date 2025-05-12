@@ -6,6 +6,7 @@ const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -30,19 +31,9 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const cookies = req.cookies;
-    const { token } = cookies;
-    if (!token) {
-      throw new Error("Token not found");
-    }
-    const decodeMessage = await jwt.verify(token, "stackmateprojectkey");
-    const { _id } = decodeMessage;
-    const user = await Users.findById(_id);
-    if (!user) {
-      throw new Error("User didnt exist");
-    }
+    const user = req.user;
     res.send(user);
 
     // console.log(cookies);

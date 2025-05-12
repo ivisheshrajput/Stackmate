@@ -1,21 +1,22 @@
-// const adminAuth = (req, res, next) => {
-//   const token = "xyz"; //change this to check other routes for authentication
-//   const isAuthenticated = token === "xyz";
-//   if (!isAuthenticated) {
-//     res.status(401).send("Admin in NOT Authenticated");
-//   } else {
-//     next();
-//   }
-// };
+const jwt = require("jsonwebtoken");
+const Users = require("../models/user");
+const userAuth = async (req, res, next) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      throw new Error("Token is not Valid");
+    }
+    const decodedObj = await jwt.verify(token, "stackmateprojectkey");
+    const { _id } = decodedObj;
+    const user = await Users.findById(_id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    req.user = user;
+    next();
+  } catch (err) {
+    res.status(400).send("ERROR :" + err);
+  }
+};
 
-// const userAuth = (req, res, next) => {
-//   const token = "xyz";
-//   const isAuthenticated = token === "xyz";
-//   if (!isAuthenticated) {
-//     res.send("User in NOT Authenticated");
-//   } else {
-//     next();
-//   }
-// };
-
-// module.exports = { adminAuth, userAuth };
+module.exports = { userAuth };
