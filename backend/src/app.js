@@ -20,7 +20,9 @@ app.post("/login", async (req, res) => {
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
-      const token = await jwt.sign({ _id: user._id }, "stackmateprojectkey");
+      const token = await jwt.sign({ _id: user._id }, "stackmateprojectkey", {
+        expiresIn: "1d",
+      });
       res.cookie("token", token);
       res.send("Login is successfull");
     } else {
