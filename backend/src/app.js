@@ -4,8 +4,11 @@ const connectDB = require("./config/database");
 const app = express();
 const { validateSignUpData } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/login", async (req, res) => {
   try {
@@ -16,12 +19,36 @@ app.post("/login", async (req, res) => {
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
+      const token = await jwt.sign({ _id: user._id }, "stackmateprojectkey");
+      res.cookie("token", token);
       res.send("Login is successfull");
     } else {
       throw new Error("Invalid Credential Pass");
     }
   } catch (err) {
     res.status(400).send("ERROR :" + err);
+  }
+});
+
+app.get("/profile", async (req, res) => {
+  try {
+    const cookies = req.cookies;
+    const { token } = cookies;
+    if (!token) {
+      throw new Error("Token not found");
+    }
+    const decodeMessage = await jwt.verify(token, "stackmateprojectkey");
+    const { _id } = decodeMessage;
+    const user = await Users.findById(_id);
+    if (!user) {
+      throw new Error("User didnt exist");
+    }
+    res.send(user);
+
+    // console.log(cookies);
+    // res.send("Capturing Cookie");
+  } catch (err) {
+    res.status(400).send("Error " + err.message);
   }
 });
 
