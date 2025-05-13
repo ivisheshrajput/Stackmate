@@ -2,34 +2,13 @@ const express = require("express");
 const Users = require("./models/user");
 const connectDB = require("./config/database");
 const app = express();
-const { validateSignUpData } = require("./utils/validation");
-const bcrypt = require("bcrypt");
-const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const { userAuth } = require("./middlewares/auth");
-
+const cookieParser = require("cookie-parser");
+const authRouter = require("./routes/auth");
 app.use(express.json());
 app.use(cookieParser());
-
-app.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await Users.findOne({ email: email });
-    if (!user) {
-      throw new Error("Invalid Credential Email");
-    }
-    const isPasswordValid = await user.validatePassword(password);
-    if (isPasswordValid) {
-      const token = await user.getJWT();
-      res.cookie("token", token);
-      res.send("Login is successfull");
-    } else {
-      throw new Error("Invalid Credential Pass");
-    }
-  } catch (err) {
-    res.status(400).send("ERROR :" + err);
-  }
-});
+app.use("/", authRouter);
 
 app.get("/profile", userAuth, async (req, res) => {
   try {
@@ -42,63 +21,6 @@ app.get("/profile", userAuth, async (req, res) => {
     res.status(400).send("Error " + err.message);
   }
 });
-
-app.post("/signup", async (req, res) => {
-  try {
-    validateSignUpData(req);
-    const { firstName, lastName, email, password } = req.body;
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    const user = new Users({
-      firstName,
-      lastName,
-      email,
-      password: passwordHash,
-    });
-    await user.save();
-    res.send("User has been created");
-  } catch (err) {
-    res.status(400).send("ERROR:" + err.message);
-  }
-});
-
-app.patch("/user/:userid", async (req, res) => {
-  const userID = req.params?.userid;
-  const data = req.body;
-  console.log(data, "ooooooo");
-  try {
-    const ALLOWED_DATA = ["age", "skill", "gender", "photoUrl", "about"];
-    const isUpdateAllowed = Object.keys(data).every((key) =>
-      ALLOWED_DATA.includes(key)
-    );
-    if (!isUpdateAllowed) {
-      throw new Error("Some fields are not allowed");
-    }
-    if (data?.skill?.length > 10) {
-      throw new Error("Skills should be less than 10");
-    }
-    const user = await Users.findByIdAndUpdate(userID, data, {
-      runValidators: true,
-    });
-
-    res.send("Update is successful");
-  } catch (error) {
-    res.status(400).send("Error Occur:" + error);
-  }
-});
-
-// app.patch("/user", async (req, res) => {
-//   const userID = req.body.userId;
-//   const data = req.body;
-//   try {
-//     const user = await Users.findByIdAndUpdate(userID, data, {
-//       runValidators: true,
-//     });
-//     res.send("User is updated");
-//   } catch (err) {
-//     res.status(400).send("Something went wrong" + err);
-//   }
-// });
 
 app.delete("/delete", async (req, res) => {
   const userID = req.body.userId;
