@@ -1,29 +1,33 @@
 const express = require("express");
 const profileRoute = express.Router();
-const Users = require("../models/user");
+const { userAuth } = require("../middlewares/auth");
+const { validtateEditProfile } = require("../utils/validation");
 
-profileRoute.patch("/user/:userid", async (req, res) => {
-  const userID = req.params?.userid;
-  const data = req.body;
-  console.log(data, "ooooooo");
+profileRoute.get("/profile/view", userAuth, async (req, res) => {
   try {
-    const ALLOWED_DATA = ["age", "skill", "gender", "photoUrl", "about"];
-    const isUpdateAllowed = Object.keys(data).every((key) =>
-      ALLOWED_DATA.includes(key)
+    const user = req.user;
+    res.send(user);
+  } catch (err) {
+    res.status(400).send("Error " + err.message);
+  }
+});
+profileRoute.patch("/profile/edit", userAuth, async (req, res) => {
+  try {
+    if (!validtateEditProfile(req)) {
+      throw new Error("Invalid Data Request");
+    }
+    const loggedInUsers = req.user;
+    Object.keys(req.body).forEach(
+      (key) => (loggedInUsers[key] = req.body[key])
     );
-    if (!isUpdateAllowed) {
-      throw new Error("Some fields are not allowed");
-    }
-    if (data?.skill?.length > 10) {
-      throw new Error("Skills should be less than 10");
-    }
-    const user = await Users.findByIdAndUpdate(userID, data, {
-      runValidators: true,
+    await loggedInUsers.save();
+    console.log(loggedInUsers);
+    res.json({
+      message: `${loggedInUsers.firstName}, your profile have been updated`,
+      data: loggedInUsers,
     });
-
-    res.send("Update is successful");
-  } catch (error) {
-    res.status(400).send("Error Occur:" + error);
+  } catch (err) {
+    res.status(400).send("Error :" + err);
   }
 });
 
